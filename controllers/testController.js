@@ -1,10 +1,12 @@
 import Test from "../models/test.js";
+import TestDetail from "../models/testdetail.js";
 // import { isEmpty } from "../lib/utils";
+import cloudinary from "../lib/cloudinary.js";
 
 export const testList = async (req, res) => {
     try {
         const list = await Test.find()
-        res.json({code: 200, success: true, data: list, msg: 'success'})
+        res.json({code: 200, success: true, data: {list: list, detail: []}, msg: 'success'})
     } catch (err) {
         res.json({code: 0, success: false, msg: err.msg})
     }
@@ -12,16 +14,17 @@ export const testList = async (req, res) => {
 
 export const createTestData = async (req, res) => {
    try {
-    const {name, age} = req.body
-    if (!name || !age) {
+    const {name, age, img} = req.body
+    if (!name || !age || !img) {
        res.json({code: 0, success: false, msg: 'please check the data'})
     }
+    const imgUrl = await cloudinary.uploader.upload(img)
     const test = await Test.findOne({name})
     if (test) {
         res.json({code: 0, success: true, msg: 'the test exist'})
     }
     const newData = await Test.create({
-        name, age
+        name, age, img: imgUrl
     })
     res.json({code: 200, success: true, data: newData, msg: 'please check the data'})
    } catch(err) {
@@ -41,7 +44,6 @@ export const update = async (req, res) => {
     } catch (err) {
         res.json({code: 0, success: false, msg: err.msg})
     }
-
 }
 
 export const delItem = async (req, res) => {
@@ -57,3 +59,29 @@ export const delItem = async (req, res) => {
   }
 }
 
+// detail
+export const testDetail = async (req, res) => {
+    try {
+        const { id, job, img } = req.body
+        if (!id) {
+            res.json({code: 0, success: false, msg: 'id doesnt exist'})
+        }
+        const param = {
+            id, job, img
+        }
+        await Test.create(param)
+        res.josn({code: 200, success: true, msg: 'add data successfully'})
+    } catch(err) {
+        res.json({code: 0, success: false, msg: err.msg})
+    }
+}
+
+export const updateImg = async (req,res) => {
+    try {
+     const {img, id} = req.body
+    } catch(err) {
+      const imgUrl = await cloudinary.uploader.upload(img)
+      await Test.findByIdAndUpdate(id, {img: imgUrl.secure_url}, {new: true})
+      res.json({success: true, msg: 'update img successfully'})
+    }
+}
