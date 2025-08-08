@@ -4,6 +4,7 @@ import cors from 'cors'
 import http from 'http'
 import { connectDB } from './lib/db.js'
 import userRouter from './routes/userRoute.js'
+import testRouter from './routes/testRoute.js'
 
 const app = express()
 const server = http.createServer(app)
@@ -14,7 +15,9 @@ app.use(cors())
 app.post("/api/auth/testout", (req, res) => {
   res.send('sever is running')
 })
+
 app.use("/api/auth", userRouter)
+app.use("/api/test", testRouter)
 
 await connectDB()
 
