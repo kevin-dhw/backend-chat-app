@@ -1,12 +1,17 @@
 import Test from "../models/test.js";
 import TestDetail from "../models/testdetail.js";
-// import { isEmpty } from "../lib/utils";
 import cloudinary from "../lib/cloudinary.js";
 
 export const testList = async (req, res) => {
     try {
         const list = await Test.find()
-        res.json({code: 200, success: true, data: {list: list, detail: []}, msg: 'success'})
+        for (let item of list) {
+          const query = {_id: item._id}
+            const detail = TestDetail.find(query)
+            item.detail = detail
+            item.detail2 = '222'
+        }
+        res.json({code: 200, success: true, data: {list: list}, msg: 'success'})
     } catch (err) {
         res.json({code: 0, success: false, msg: err.msg})
     }
@@ -78,10 +83,11 @@ export const testDetail = async (req, res) => {
 
 export const updateImg = async (req,res) => {
     try {
-     const {img, id} = req.body
-    } catch(err) {
+      const {img, id} = req.body
       const imgUrl = await cloudinary.uploader.upload(img)
       await Test.findByIdAndUpdate(id, {img: imgUrl.secure_url}, {new: true})
       res.json({success: true, msg: 'update img successfully'})
+    } catch(err) {
+      res.json({code: 0, success: false, msg: err.msg})
     }
 }

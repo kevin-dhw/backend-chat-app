@@ -5,6 +5,7 @@ import http from 'http'
 import { connectDB } from './lib/db.js'
 import userRouter from './routes/userRoute.js'
 import testRouter from './routes/testRoute.js'
+import testDetailRoute from './routes/testDetailRoute.js'
 
 const app = express()
 const server = http.createServer(app)
@@ -18,6 +19,7 @@ app.post("/api/auth/testout", (req, res) => {
 
 app.use("/api/auth", userRouter)
 app.use("/api/test", testRouter)
+app.use("/api/testDetail", testDetailRoute)
 
 await connectDB()
 
